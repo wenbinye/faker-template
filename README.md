@@ -1,4 +1,4 @@
-# Generate faker data use json template
+# Generate data use php template
 
 ## Quick start
 
@@ -43,6 +43,9 @@ return [
 ];
 ```
 
+Note all key starts with `_` will be discard when output. You can use key starts with `_`
+to store temporal data to facilitate data generation.
+
 Template value type can be one of:
 
 ### array
@@ -65,10 +68,7 @@ if first part of the string is not present in current result, then use `$faker->
 
 The rest part of the string use as the index for the entry.
 
-For example:
-
-```php
-```
+For example: `pet_type` will random choose one from `pet_type.json`.
 
 ### iterator
 
@@ -128,7 +128,7 @@ The will generate :
 ```json
 [
   {"type": ["a", "b"]}
-}
+]
 ```
 
 But:
@@ -169,3 +169,7 @@ pickup($dataSetName)
 dataset($dataSetName)
 ```
 
+## Tips
+
+- use `$faker->optional()` to create nullable value
+- use `$faker->unique()` to create unique value
