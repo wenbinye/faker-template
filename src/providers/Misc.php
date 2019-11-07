@@ -9,7 +9,7 @@ class Misc
         return $value instanceof \Closure ? $value() : $value;
     }
 
-    public function generator(\Generator $generator)
+    public function iterate(\Iterator $generator)
     {
         if ($generator->valid()) {
             $value = $generator->current();

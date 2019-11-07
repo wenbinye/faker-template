@@ -25,11 +25,12 @@ class Config
                 $configFile = self::FAKER_CONFIG;
             } else {
                 $configFile = self::home().'/.faker-config';
-                if (!file_exists($configFile)) {
-                    throw new \RuntimeException(sprintf('Create config file at either ./%s or %s', self::FAKER_CONFIG, $configFile));
-                }
             }
-            static::setConfigFile($configFile);
+            if (file_exists($configFile)) {
+                static::setConfigFile($configFile);
+            } else {
+                static::$instance = new static([]);
+            }
         }
 
         return self::$instance;

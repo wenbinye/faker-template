@@ -11,8 +11,8 @@
     },
     "require": {
         "php": "^7.0",
-        "fzaninotto/faker": "^1.8",
         "ext-json": "*",
+        "fzaninotto/faker": "^1.8",
         "symfony/console": "^3.4"
     },
     "require-dev": {
