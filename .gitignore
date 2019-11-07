@@ -1,0 +1,17 @@
+.env
+.php_cs.cache
+/resources/views/boss
+/resources/views/agent
+/resources/views/agent-m
+/vendor/
+/runtime/
+/.env/
+/.idea/
+/resources/views/origin/
+*.scss
+*.css.map
+.DS_Store
+*/**/.DS_Store
+composer.lock
+resources/
+*.phar

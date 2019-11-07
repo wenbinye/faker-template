@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+define('BASE_PATH', dirname(__DIR__));
+
+require BASE_PATH . '/vendor/autoload.php';
+
+$app = new \Symfony\Component\Console\Application();
+$app->add(new \winwin\faker\GenerateCommand('gen'));
+$app->setDefaultCommand('gen', true);
+$app->run();

@@ -1,0 +1,21 @@
+{
+    "autoload": {
+        "psr-4": {
+            "winwin\\faker\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "winwin\\faker\\": "test/"
+        }
+    },
+    "require": {
+        "php": "^7.0",
+        "fzaninotto/faker": "^1.8",
+        "ext-json": "*",
+        "symfony/console": "^3.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.5"
+    }
+}
