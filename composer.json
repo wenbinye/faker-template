@@ -13,7 +13,8 @@
         "php": "^7.0",
         "ext-json": "*",
         "fzaninotto/faker": "^1.8",
-        "symfony/console": "^3.4"
+        "symfony/console": "^3.4",
+        "gburtini/distributions": "^0.0.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5"

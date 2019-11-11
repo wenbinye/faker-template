@@ -2,6 +2,8 @@
 
 namespace winwin\faker\providers;
 
+use gburtini\Distributions\Normal;
+
 class Misc
 {
     public function same($value)
@@ -59,5 +61,10 @@ class Misc
                 yield $rest;
             }
         }
+    }
+
+    public function normalMean($mean, $sd)
+    {
+        return (new Normal($mean, $sd))->rand();
     }
 }
