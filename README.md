@@ -5,11 +5,11 @@
 ```bash
 composer install
 cd examples
-../bin/gen owner
-../bin/gen owner -r 10 -o result/owner.json
-../bin/gen pet_type -r inf -o result/pet_type.json
-../bin/gen pet -r 10 -o result/pet.json
-../bin/gen visit -r 10 -o result/visit.json
+../bin/faker-template owner
+../bin/faker-template owner -r 10 -o result/owner.json
+../bin/faker-template pet_type -r inf -o result/pet_type.json
+../bin/faker-template pet -r 10 -o result/pet.json
+../bin/faker-template visit -r 10 -o result/visit.json
 ```
 
 ## Template
@@ -44,7 +44,7 @@ return [
 ```
 
 Note all key starts with `_` will be discard when output. You can use key starts with `_`
-to store temporal data to facilitate data generation.
+to store temporal data to facilitate data faker-templateeration.
 
 Template value type can be one of:
 
@@ -160,7 +160,7 @@ You can create a file `.faker-config` in current directory or home directory. Th
 - dataset the data set directory
 - options additional command line options
 
-## Generators
+## generators
 
 
 ```php

@@ -68,19 +68,22 @@ class GenerateCommand extends Command
         $template = $this->loadTemplate($faker, sprintf('%s/%s.php', $templateDir, $templateName));
         $entries = [];
         $i = 0;
+        $fp = fopen($outputFile, 'wb');
         while ($i < $rowNumber) {
             ++$i;
             if (0 === $i % 1000) {
                 $output->writeln(date('c') . " <info>generate $i rows</info>");
             }
             try {
-                $entries[] = $template();
+                // $entries[] = $template();
+                fwrite($fp, json_encode($template(), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)."\n");
             } catch (\OverflowException $e) {
                 break;
             }
         }
-        $jsonOptions = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
-        file_put_contents($outputFile, json_encode($entries, $jsonOptions));
+        fclose($fp);
+        // $jsonOptions = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+        // file_put_contents($outputFile, json_encode($entries, $jsonOptions));
     }
 
     private function loadTemplate(Generator $faker, string $templateFile): callable
