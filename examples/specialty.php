@@ -3,6 +3,6 @@
 return [
     'id' => ['incrementId'],
     'name' => function($faker) {
-        return new ArrayIterator($faker->dataset('specialty'));
+        return $faker->dataset('specialty');
     }
 ];

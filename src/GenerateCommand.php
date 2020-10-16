@@ -2,18 +2,12 @@
 
 namespace winwin\faker;
 
-use Faker\Factory;
 use Faker\Generator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use winwin\faker\providers\Dataset;
-use winwin\faker\providers\DateTime;
-use winwin\faker\providers\Increment;
-use winwin\faker\providers\Input;
-use winwin\faker\providers\Misc;
 
 class GenerateCommand extends Command
 {
@@ -57,37 +51,29 @@ class GenerateCommand extends Command
                 throw new \RuntimeException("Cannot create output directory '$outputDir'");
             }
         }
+        $faker = (new GeneratorFactory())
+            ->setLocale($locale)
+            ->setDatasetPaths($datasetPaths)
+            ->setInput($input)
+            ->create();
 
-        $faker = Factory::create($locale);
-        $faker->addProvider(Dataset::create($faker, $datasetPaths));
-        $faker->addProvider(new Increment());
-        $faker->addProvider(new Misc());
-        $faker->addProvider(new DateTime($faker));
-        $faker->addProvider(new Input($input));
-
-        $template = $this->loadTemplate($faker, sprintf('%s/%s.php', $templateDir, $templateName));
-        $entries = [];
-        $i = 0;
+        $template = $this->loadTemplate($faker, sprintf('%s/%s', $templateDir, $templateName));
+        $template->setMaxItems($rowNumber);
         $fp = fopen($outputFile, 'wb');
-        while ($i < $rowNumber) {
-            ++$i;
-            if (0 === $i % 1000) {
+        foreach ($template as $i => $item) {
+            if ($i > 0 && $i % 1000 === 0) {
                 $output->writeln(date('c') . " <info>generate $i rows</info>");
             }
-            try {
-                // $entries[] = $template();
-                fwrite($fp, json_encode($template(), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)."\n");
-            } catch (\OverflowException $e) {
-                break;
-            }
+            fwrite($fp, json_encode($item, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
         }
         fclose($fp);
-        // $jsonOptions = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
-        // file_put_contents($outputFile, json_encode($entries, $jsonOptions));
     }
 
-    private function loadTemplate(Generator $faker, string $templateFile): callable
+    private function loadTemplate(Generator $faker, string $templateFile): Template
     {
+        if (strrpos($templateFile, '.php') === false) {
+            $templateFile .= '.php';
+        }
         if (!file_exists($templateFile)) {
             throw new \InvalidArgumentException("Cannot not load template '$templateFile'");
         }
@@ -96,49 +82,7 @@ class GenerateCommand extends Command
             throw new \InvalidArgumentException("Invalid template '$templateFile'");
         }
 
-        return function () use ($faker, &$data, $templateFile) {
-            $values = [];
-            foreach ($data as $key => $template) {
-                if (is_string($template)) {
-                    $parts = explode('.', $template);
-                    if (!isset($values[$parts[0]])) {
-                        $datasetKey = '_' . $parts['0'];
-                        if (!isset($values[$datasetKey])) {
-                            $values[$datasetKey] = $faker->pickup($parts[0]);
-                        }
-                        $parts[0] = $datasetKey;
-                    }
-                    $value = $values;
-                    while ($parts) {
-                        $value = $value[array_shift($parts)] ?? null;
-                    }
-                } elseif (is_array($template)) {
-                    if (!isset($template[0]) && !is_array($template[0])) {
-                        throw new \InvalidArgumentException("Invalid template for key '$key' in '$templateFile'");
-                    }
-                    $method = array_shift($template);
-                    $value = call_user_func_array([$faker, $method], $template);
-                } elseif ($template instanceof \Closure) {
-                    $value = $template($faker, $values);
-                    if ($value instanceof \Iterator) {
-                        $data[$key] = $value;
-                        $value = $faker->iterate($value);
-                    }
-                } elseif ($template instanceof \Iterator) {
-                    $value = $faker->iterate($template);
-                } else {
-                    throw new \InvalidArgumentException("Invalid template for key '$key' in '$templateFile'");
-                }
-                $values[$key] = $value;
-            }
-            foreach ($values as $key => $val) {
-                if ('_' === $key[0]) {
-                    unset($values[$key]);
-                }
-            }
-
-            return $values;
-        };
+        return new Template($faker, $data);
     }
 
     private function parseOptions()

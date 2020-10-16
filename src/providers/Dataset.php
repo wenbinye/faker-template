@@ -18,14 +18,19 @@ class Dataset extends Base
     private $dataSet;
 
     /**
+     * @var array
+     */
+    private $data;
+
+    /**
      * @param string $baseDir
      */
-    private function addPath(string $baseDir)
+    private function addPath(string $baseDir): void
     {
         $this->searchPaths[$baseDir] = true;
     }
 
-    private function setSearchPaths(array $paths)
+    private function setSearchPaths(array $paths): void
     {
         $this->searchPaths = [];
         foreach ($paths as $path) {
@@ -58,11 +63,7 @@ class Dataset extends Base
             if (!$found) {
                 throw new \InvalidArgumentException("cannot find dataset '$name', try ".implode(',', $tryFiles));
             }
-            $entries = json_decode(file_get_contents($found), true);
-            if (!is_array($entries)) {
-                throw new \InvalidArgumentException("dataset '$found' not array");
-            }
-            $this->dataSet[$name] = $entries;
+            $this->dataSet[$name] = $this->parseJsonLines($found);
         }
 
         return $this->dataSet[$name];
@@ -70,6 +71,33 @@ class Dataset extends Base
 
     public function pickup($name)
     {
-        return self::randomElement($this->dataset($name));
+        if (!isset($this->data[$name])) {
+            $this->data[$name] = iterator_to_array($this->dataset($name));
+        }
+        return self::randomElement($this->data[$name]);
+    }
+
+    protected function parseJsonLines(string $file)
+    {
+        $fp = fopen($file, "rb");
+        $line = trim(fgets($fp));
+        if ($line === '[') {
+            $entries = json_decode(file_get_contents($file), true);
+            if (!is_array($entries)) {
+                throw new \InvalidArgumentException("dataset '$file' not array");
+            }
+            return new \ArrayIterator($entries);
+        } else {
+            return $this->iterateJsonFile($fp);
+        }
+    }
+
+    private function iterateJsonFile($fp)
+    {
+        fseek($fp, 0);
+        while ($line = fgets($fp)) {
+            yield json_decode($line, true);
+        }
+        fclose($fp);
     }
 }
