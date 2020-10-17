@@ -57,7 +57,7 @@ class Template implements \Iterator
         $this->maxItems = $maxItems;
     }
 
-    private function generateForString(string $template)
+    private function generateForString(string $template, array &$values)
     {
         $parts = explode('.', $template);
         if (!isset($values[$parts[0]])) {
@@ -87,7 +87,7 @@ class Template implements \Iterator
     {
         $value = $template($this->faker, $values);
         if ($value instanceof \Iterator) {
-            $this->template[$key] = $value;
+            $this->templateData[$key] = $value;
             return $this->faker->iterate($value);
         } else {
             return $value;
@@ -97,9 +97,9 @@ class Template implements \Iterator
     public function generate(): array
     {
         $values = [];
-        foreach ($this->template as $key => $template) {
+        foreach ($this->templateData as $key => $template) {
             if (is_string($template)) {
-                $value = $this->generateForString($template);
+                $value = $this->generateForString($template, $values);
             } elseif (is_array($template)) {
                 $value = $this->generateForArray($template);
             } elseif ($template instanceof \Closure) {
